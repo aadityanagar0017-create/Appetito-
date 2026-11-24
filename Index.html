@@ -1,0 +1,2131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APPETITO — Your Experience Matters!</title>
+    <meta
+      name="description"
+      content="Share your honest dining feedback and craft a customer review for APPETITO."
+    />
+    <meta property="og:title" content="APPETITO — Your Experience Matters!" />
+    <meta
+      property="og:description"
+      content="Thank you for dining with us at APPETITO. Share your honest feedback and post your review."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ==========================================================================
+         APPETITO — Design Tokens & Reset
+         Palette: Obsidian Black (#0C0907), Espresso (#1A130E), Cream (#F5EDE0),
+                  Brushed Gold (#D4AF37 / #E5C158)
+         ========================================================================== */
+      :root {
+        --bg-obsidian: #0c0907;
+        --bg-espresso: #1a130e;
+        --surface-card: rgba(20, 14, 10, 0.84);
+        --surface-elevated: rgba(34, 24, 18, 0.88);
+        --surface-input: rgba(12, 8, 6, 0.72);
+        --border-subtle: rgba(212, 175, 55, 0.22);
+        --border-strong: rgba(229, 193, 88, 0.52);
+        --text-cream: #f5ede0;
+        --text-muted: #cbbba4;
+        --text-soft: #9e8d77;
+        --gold-primary: #d4af37;
+        --gold-bright: #ebc862;
+        --gold-deep: #9c7a1e;
+        --gold-glow: rgba(212, 175, 55, 0.22);
+        --success-bg: rgba(46, 117, 79, 0.22);
+        --success-border: rgba(116, 206, 152, 0.45);
+        --success-text: #b7f0cb;
+        --warn-bg: rgba(182, 126, 36, 0.2);
+        --warn-border: rgba(235, 190, 94, 0.48);
+        --warn-text: #f7dba0;
+        --error-bg: rgba(166, 58, 52, 0.22);
+        --error-border: rgba(232, 120, 114, 0.48);
+        --error-text: #f8bcbc;
+        --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+        --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --radius-card: 22px;
+        --radius-control: 12px;
+        --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        font-family: var(--font-body);
+        color: var(--text-cream);
+        background-color: var(--bg-obsidian);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ==========================================================================
+         Full-Screen Restaurant Background + Fallback & Scrim Overlay
+         ========================================================================== */
+      .backdrop-layer {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background-color: #120c08;
+        /* Rich fallback gradient if background photo fails to load */
+        background-image:
+          radial-gradient(circle at 22% 18%, rgba(212, 175, 55, 0.2) 0%, transparent 45%),
+          radial-gradient(circle at 80% 78%, rgba(145, 86, 34, 0.22) 0%, transparent 48%),
+          radial-gradient(circle at 50% 45%, #2a1b12 0%, #140d09 55%, #090604 100%);
+        overflow: hidden;
+      }
+
+      .backdrop-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+        display: block;
+        transform: scale(1.02);
+        filter: saturate(1.06) contrast(1.04);
+        transition: opacity 0.5s ease;
+      }
+
+      .backdrop-photo.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Subtle dark transparent overlay so text remains highly legible while food photography shines */
+      .backdrop-scrim {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background:
+          radial-gradient(circle at 50% 25%, rgba(12, 8, 5, 0.42) 0%, rgba(10, 7, 5, 0.72) 80%),
+          linear-gradient(180deg, rgba(10, 7, 5, 0.62) 0%, rgba(14, 10, 7, 0.56) 45%, rgba(8, 5, 4, 0.84) 100%);
+        pointer-events: none;
+      }
+
+      /* ==========================================================================
+         Page Shell & Main Card
+         ========================================================================== */
+      .page-shell {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: clamp(20px, 4vw, 48px) clamp(14px, 3vw, 28px) 24px;
+      }
+
+      .review-card {
+        width: 100%;
+        max-width: 760px;
+        background: var(--surface-card);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        box-shadow:
+          0 28px 64px rgba(0, 0, 0, 0.55),
+          inset 0 1px 0 rgba(255, 236, 185, 0.08);
+        padding: clamp(24px, 4.5vw, 48px) clamp(18px, 4.5vw, 44px);
+        animation: cardReveal 0.55s var(--ease-settle) both;
+      }
+
+      @keyframes cardReveal {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ==========================================================================
+         1. Brand Header & Heading
+         ========================================================================== */
+      .brand-header {
+        text-align: center;
+        padding-bottom: 26px;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.16);
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .brand-emblem {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        color: var(--gold-bright);
+        filter: drop-shadow(0 4px 10px rgba(212, 175, 55, 0.25));
+      }
+
+      .brand-name {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4.8vw, 2.9rem);
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        line-height: 1.05;
+        color: var(--gold-bright);
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+      }
+
+      .hero-title {
+        margin: 4px auto 10px;
+        font-family: var(--font-display);
+        font-size: clamp(1.75rem, 3.8vw, 2.45rem);
+        font-weight: 600;
+        line-height: 1.18;
+        color: var(--text-cream);
+        text-wrap: balance;
+      }
+
+      .hero-subtitle {
+        margin: 0 auto;
+        max-width: 56ch;
+        font-size: clamp(0.95rem, 1.9vw, 1.05rem);
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      /* ==========================================================================
+         Section Structure
+         ========================================================================== */
+      .section-block {
+        padding: 26px 0;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+      }
+
+      .section-block:last-of-type {
+        border-bottom: none;
+        padding-bottom: 6px;
+      }
+
+      .section-heading {
+        margin: 0 0 6px;
+        font-family: var(--font-display);
+        font-size: clamp(1.35rem, 2.7vw, 1.65rem);
+        font-weight: 600;
+        color: var(--text-cream);
+        letter-spacing: 0.01em;
+        text-wrap: balance;
+      }
+
+      .section-helper {
+        margin: 0 0 18px;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+      }
+
+      /* ==========================================================================
+         2. Interactive 5-Star Rating System
+         ========================================================================== */
+      .rating-section {
+        text-align: center;
+      }
+
+      .stars-row {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(6px, 2vw, 14px);
+        margin: 6px 0 12px;
+      }
+
+      .star-btn {
+        appearance: none;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 14px;
+        min-width: 52px;
+        min-height: 52px;
+        width: clamp(50px, 11vw, 64px);
+        height: clamp(50px, 11vw, 64px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: rgba(203, 187, 164, 0.34);
+        font-size: clamp(1.75rem, 4.5vw, 2.2rem);
+        line-height: 1;
+        transition:
+          transform 160ms var(--ease-settle),
+          color 160ms ease,
+          background-color 160ms ease,
+          border-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .star-btn:hover,
+      .star-btn.is-preview {
+        color: #f0d27a;
+        border-color: rgba(229, 193, 88, 0.45);
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .star-btn.is-selected {
+        color: var(--gold-bright);
+        border-color: var(--border-strong);
+        background: rgba(212, 175, 55, 0.16);
+        box-shadow: 0 6px 18px rgba(212, 175, 55, 0.18);
+      }
+
+      .star-btn:active {
+        transform: scale(0.95);
+      }
+
+      .star-btn:focus-visible,
+      .keyword-btn:focus-visible,
+      .btn:focus-visible,
+      .review-textarea:focus-visible {
+        outline: 2px solid var(--gold-bright);
+        outline-offset: 2px;
+      }
+
+      .rating-label-display {
+        min-height: 28px;
+        margin: 4px 0 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gold-bright);
+        letter-spacing: 0.02em;
+        transition: opacity 180ms ease;
+      }
+
+      .rating-label-display.is-empty {
+        color: var(--text-soft);
+        font-weight: 400;
+        font-size: 0.92rem;
+      }
+
+      /* ==========================================================================
+         3. Dynamic Rating-Specific Keywords
+         ========================================================================== */
+      .keywords-container {
+        margin-top: 22px;
+        text-align: left;
+        animation: fadeSlideIn 220ms var(--ease-settle) both;
+      }
+
+      .keywords-container[hidden] {
+        display: none;
+      }
+
+      @keyframes fadeSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .keywords-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .keywords-title {
+        margin: 0;
+        font-size: 0.96rem;
+        font-weight: 600;
+        color: var(--text-cream);
+      }
+
+      .keywords-count {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .keywords-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .keyword-btn {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(212, 175, 55, 0.24);
+        background: rgba(34, 24, 18, 0.72);
+        color: var(--text-cream);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 500;
+        line-height: 1.25;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background-color 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease,
+          transform 140ms var(--ease-settle),
+          box-shadow 160ms ease;
+      }
+
+      .keyword-btn:hover {
+        border-color: rgba(229, 193, 88, 0.52);
+        background: rgba(54, 38, 27, 0.85);
+        transform: translateY(-1px);
+      }
+
+      .keyword-btn:active {
+        transform: scale(0.98);
+      }
+
+      .keyword-check {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1.5px solid rgba(203, 187, 164, 0.5);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 11px;
+        line-height: 1;
+        color: transparent;
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+      }
+
+      .keyword-btn.is-active {
+        background: linear-gradient(135deg, #d4af37 0%, #b99023 100%);
+        border-color: #f1d47a;
+        color: #120c08;
+        font-weight: 600;
+        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.24);
+      }
+
+      .keyword-btn.is-active .keyword-check {
+        background: #140d09;
+        border-color: #140d09;
+        color: var(--gold-bright);
+      }
+
+      /* ==========================================================================
+         4. Review Draft & Editable Textarea
+         ========================================================================== */
+      .draft-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .word-counter {
+        font-size: 0.84rem;
+        color: var(--text-soft);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .generate-row {
+        margin-bottom: 16px;
+      }
+
+      .btn {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 48px;
+        padding: 12px 22px;
+        border-radius: var(--radius-control);
+        font-family: var(--font-body);
+        font-size: 0.96rem;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition:
+          transform 150ms var(--ease-settle),
+          background-color 170ms ease,
+          border-color 170ms ease,
+          box-shadow 170ms ease,
+          opacity 170ms ease;
+      }
+
+      .btn:active:not(:disabled) {
+        transform: scale(0.985);
+      }
+
+      .btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        width: 100%;
+        background: linear-gradient(135deg, #e7c86b 0%, #cfa431 55%, #b88b1e 100%);
+        color: #140d09;
+        border-color: rgba(255, 234, 168, 0.55);
+        box-shadow: 0 10px 24px rgba(212, 175, 55, 0.25);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #f0d47e 0%, #d8ae3c 55%, #c29524 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(212, 175, 55, 0.32);
+      }
+
+      .btn-secondary {
+        background: rgba(43, 31, 23, 0.9);
+        color: var(--text-cream);
+        border-color: rgba(212, 175, 55, 0.34);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background: rgba(58, 42, 31, 0.95);
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+
+      .btn-google {
+        background: rgba(245, 237, 224, 0.96);
+        color: #16100c;
+        border-color: rgba(245, 237, 224, 0.9);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      }
+
+      .btn-google:hover:not(:disabled) {
+        background: #ffffff;
+        transform: translateY(-1px);
+      }
+
+      .btn-reset {
+        min-height: 44px;
+        padding: 10px 18px;
+        background: transparent;
+        color: var(--text-muted);
+        border-color: rgba(203, 187, 164, 0.24);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .btn-reset:hover:not(:disabled) {
+        color: var(--text-cream);
+        border-color: rgba(212, 175, 55, 0.45);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(20, 13, 9, 0.28);
+        border-top-color: #140d09;
+        animation: spin 0.7s linear infinite;
+        display: none;
+      }
+
+      .btn.is-loading .spinner {
+        display: inline-block;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .textarea-wrap {
+        position: relative;
+      }
+
+      .review-textarea {
+        width: 100%;
+        min-height: 158px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        border: 1px solid rgba(212, 175, 55, 0.28);
+        background: var(--surface-input);
+        color: var(--text-cream);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        line-height: 1.65;
+        resize: vertical;
+        transition: border-color 170ms ease, box-shadow 170ms ease;
+      }
+
+      .review-textarea::placeholder {
+        color: rgba(203, 187, 164, 0.48);
+      }
+
+      .review-textarea:focus {
+        border-color: var(--gold-bright);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+      }
+
+      .edit-hint {
+        margin: 9px 0 0;
+        font-size: 0.87rem;
+        color: var(--text-muted);
+      }
+
+      /* ==========================================================================
+         Feedback / Validation Banner
+         ========================================================================== */
+      .status-banner {
+        margin-top: 14px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        border: 1px solid transparent;
+        display: none;
+      }
+
+      .status-banner.is-visible {
+        display: block;
+        animation: fadeSlideIn 180ms var(--ease-settle) both;
+      }
+
+      .status-banner.is-success {
+        background: var(--success-bg);
+        border-color: var(--success-border);
+        color: var(--success-text);
+      }
+
+      .status-banner.is-warn {
+        background: var(--warn-bg);
+        border-color: var(--warn-border);
+        color: var(--warn-text);
+      }
+
+      .status-banner.is-error {
+        background: var(--error-bg);
+        border-color: var(--error-border);
+        color: var(--error-text);
+      }
+
+      /* ==========================================================================
+         5. Action Buttons (Copy, Google, Start Again)
+         ========================================================================== */
+      .actions-stack {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      @media (min-width: 560px) {
+        .actions-stack {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .google-note {
+        margin: 12px 0 0;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        transition: color 180ms ease;
+      }
+
+      .google-note.is-highlighted {
+        color: var(--gold-bright);
+        font-weight: 500;
+      }
+
+      .reset-row {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* ==========================================================================
+         6. Footer & Creator Credit
+         ========================================================================== */
+      .site-footer {
+        width: 100%;
+        max-width: 760px;
+        margin-top: 28px;
+        padding: 18px 12px 6px;
+        text-align: center;
+        color: var(--text-muted);
+      }
+
+      .footer-brand {
+        margin: 0 0 6px;
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        color: var(--gold-bright);
+      }
+
+      .footer-message {
+        margin: 2px 0;
+        font-size: 0.9rem;
+        color: var(--text-cream);
+      }
+
+      .footer-sub {
+        margin: 2px 0 12px;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+      }
+
+      .footer-copyright {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .creator-credit {
+        margin: 14px 0 0;
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        color: rgba(203, 187, 164, 0.65);
+        text-align: center;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Full-screen restaurant background photograph + dark readability overlay -->
+    <div class="backdrop-layer" aria-hidden="true">
+      <img
+        id="bgPhoto"
+        class="backdrop-photo"
+        src="/src/assets/images/appetito_dining_backdrop_1795526039991.jpg"
+        alt="APPETITO candlelit fine dining table with fresh pasta and dishes"
+        referrerpolicy="no-referrer"
+      />
+    </div>
+    <div class="backdrop-scrim" aria-hidden="true"></div>
+
+    <div class="page-shell">
+      <main class="review-card" aria-labelledby="heroHeading">
+        <!-- 1. Restaurant Brand & Welcome Header -->
+        <header class="brand-header">
+          <div class="brand-lockup">
+            <!-- Custom Restaurant Emblem SVG (Dining Cloche & Olive Sprig) -->
+            <svg
+              class="brand-emblem"
+              viewBox="0 0 48 48"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.45" />
+              <path
+                d="M24 10.5C25.1 10.5 26 11.4 26 12.5C26 13.1 25.7 13.7 25.2 14C32.4 14.7 38 20.7 38 28H10C10 20.7 15.6 14.7 22.8 14C22.3 13.7 22 13.1 22 12.5C22 11.4 22.9 10.5 24 10.5Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M7.5 31.5H40.5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M17.5 23.5C18.5 20.5 21 18.5 24 18"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-opacity="0.7"
+              />
+              <path
+                d="M19 36.2C20.8 35.1 22.3 35.1 24 36.2C25.7 35.1 27.2 35.1 29 36.2"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <p class="brand-name">APPETITO</p>
+          </div>
+
+          <h1 id="heroHeading" class="hero-title">Your Experience Matters!</h1>
+          <p class="hero-subtitle">
+            Thank you for dining with us! We’d love to hear about your experience. Share your honest feedback with us.
+          </p>
+        </header>
+
+        <!-- 2. Interactive Five-Star Rating & Dynamic Keywords -->
+        <section class="section-block rating-section" aria-labelledby="ratingHeading">
+          <h2 id="ratingHeading" class="section-heading">Rate Your Visit</h2>
+          <p class="section-helper">Select from 1 to 5 stars based on your dining experience.</p>
+
+          <div
+            id="starGroup"
+            class="stars-row"
+            role="radiogroup"
+            aria-label="Star rating from 1 to 5"
+          >
+            <button type="button" class="star-btn" data-rating="1" role="radio" aria-checked="false" aria-label="1 Star — Poor">★</button>
+            <button type="button" class="star-btn" data-rating="2" role="radio" aria-checked="false" aria-label="2 Stars — Below Expectations">★</button>
+            <button type="button" class="star-btn" data-rating="3" role="radio" aria-checked="false" aria-label="3 Stars — Average">★</button>
+            <button type="button" class="star-btn" data-rating="4" role="radio" aria-checked="false" aria-label="4 Stars — Very Good">★</button>
+            <button type="button" class="star-btn" data-rating="5" role="radio" aria-checked="false" aria-label="5 Stars — Excellent">★</button>
+          </div>
+
+          <p id="ratingLabelDisplay" class="rating-label-display is-empty" aria-live="polite">
+            Tap a star to select your rating
+          </p>
+
+          <!-- Dynamic Keyword Buttons Container -->
+          <div id="keywordsSection" class="keywords-container" hidden>
+            <div class="keywords-header">
+              <p id="keywordsPrompt" class="keywords-title">What stood out during your visit?</p>
+              <span id="keywordsCount" class="keywords-count">0 selected</span>
+            </div>
+            <div id="keywordsGrid" class="keywords-grid" role="group" aria-labelledby="keywordsPrompt"></div>
+          </div>
+        </section>
+
+        <!-- 3. Review Generator & Editable Review Box -->
+        <section class="section-block" aria-labelledby="draftHeading">
+          <div class="draft-header">
+            <h2 id="draftHeading" class="section-heading" style="margin-bottom: 0;">Your Review Draft</h2>
+            <span id="wordCounter" class="word-counter">0 words</span>
+          </div>
+          <p class="section-helper">
+            Generate a natural review based on your rating and selected highlights, then personalize it if you like.
+          </p>
+
+          <div class="generate-row">
+            <button type="button" id="generateBtn" class="btn btn-primary">
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="generateBtnText">✨ Generate My Review</span>
+            </button>
+          </div>
+
+          <div class="textarea-wrap">
+            <label for="reviewTextarea" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+              Editable review text
+            </label>
+            <textarea
+              id="reviewTextarea"
+              class="review-textarea"
+              placeholder="Your generated review will appear here. You can also write or edit every word freely..."
+              rows="5"
+            ></textarea>
+          </div>
+          <p class="edit-hint">Feel free to edit your review before sharing!</p>
+
+          <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+          <!-- 4. Copy & Google Review Actions -->
+          <div class="actions-stack">
+            <button type="button" id="copyBtn" class="btn btn-secondary">
+              <span id="copyBtnText">📋 Copy Review</span>
+            </button>
+            <a
+              id="googleBtn"
+              class="btn btn-google"
+              href="https://search.google.com/local/writereview?placeid=ChIJvZUAonvrDDkRafkfk0GJjcY"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>⭐ Post on Google</span>
+            </a>
+          </div>
+
+          <p id="googleInstruction" class="google-note">
+            Your review has been copied. Paste it on Google to share your experience!
+          </p>
+
+          <!-- 5. Reset Button -->
+          <div class="reset-row">
+            <button type="button" id="resetBtn" class="btn btn-reset">
+              ↻ Start Again
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- 6. Footer & Creator Credit -->
+      <footer class="site-footer">
+        <p class="footer-brand">APPETITO</p>
+        <p class="footer-message">Thank you for choosing APPETITO!</p>
+        <p class="footer-sub">Your feedback helps us improve.</p>
+        <p class="footer-copyright">© 2026 APPETITO. All Rights Reserved.</p>
+        <p class="creator-credit">Made by Aaditya Nagar</p>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        'use strict';
+
+        /* ======================================================================
+           CONFIGURATION — RESTAURANT GOOGLE REVIEW URL
+           R3, Knowledge Park II, Greater Noida, Uttar Pradesh 201310, India
+           ====================================================================== */
+        const GOOGLE_REVIEW_URL =
+          'https://search.google.com/local/writereview?placeid=ChIJvZUAonvrDDkRafkfk0GJjcY';
+
+        /* Optional background image URL override when deploying standalone */
+        const FALLBACK_BACKDROP_SVG = '';
+
+        /* Storage key for duplicate & similarity prevention across generations */
+        const HISTORY_STORAGE_KEY = 'appetito_generated_reviews_v1';
+        const MAX_HISTORY_RECORDS = 150;
+        const MAX_LOCAL_ATTEMPTS = 45;
+
+        /* ======================================================================
+           RATING CATEGORIES & KEYWORDS (Exact customer-selectable sets)
+           ====================================================================== */
+        const RATING_DATA = {
+          1: {
+            title: '1 Star – Poor',
+            prompt: 'Sorry your visit fell short. Which issues did you experience?',
+            keywords: [
+              'Poor Service',
+              'Unfriendly Staff',
+              'Long Waiting Time',
+              'Cold Food',
+              'Poor Food Quality',
+              'Unclean Restaurant',
+              'Overpriced',
+              'Wrong Order',
+              'Bad Ambience',
+              'Disappointing Experience',
+            ],
+          },
+          2: {
+            title: '2 Stars – Below Expectations',
+            prompt: 'Thank you for your honesty. What could have been better?',
+            keywords: [
+              'Slow Service',
+              'Food Wasn’t Fresh',
+              'Average Taste',
+              'Small Portions',
+              'High Prices',
+              'Delayed Order',
+              'Staff Could Improve',
+              'Not Worth the Price',
+              'Average Ambience',
+              'Room for Improvement',
+            ],
+          },
+          3: {
+            title: '3 Stars – Average',
+            prompt: 'Which details best describe your meal?',
+            keywords: [
+              'Decent Food',
+              'Average Service',
+              'Good Ambience',
+              'Reasonable Prices',
+              'Okay Experience',
+              'Normal Waiting Time',
+              'Satisfactory Food',
+              'Could Be Better',
+              'Average Portions',
+              'Nothing Special',
+            ],
+          },
+          4: {
+            title: '4 Stars – Very Good',
+            prompt: 'Glad you enjoyed dining with us! What stood out?',
+            keywords: [
+              'Delicious Food',
+              'Friendly Staff',
+              'Good Service',
+              'Nice Ambience',
+              'Fresh Food',
+              'Good Presentation',
+              'Worth the Price',
+              'Comfortable Seating',
+              'Quick Service',
+              'Enjoyable Experience',
+            ],
+          },
+          5: {
+            title: '5 Stars – Excellent',
+            prompt: 'Wonderful! Select the highlights of your visit:',
+            keywords: [
+              'Amazing Food',
+              'Excellent Service',
+              'Friendly Staff',
+              'Beautiful Ambience',
+              'Delicious Desserts',
+              'Great Hospitality',
+              'Fresh Ingredients',
+              'Perfect Presentation',
+              'Quick Service',
+              'Great Value for Money',
+              'Loved Everything',
+              'Memorable Experience',
+            ],
+          },
+        };
+
+        /* ======================================================================
+           NATURAL PHRASE LIBRARY (Every keyword mapped to varied human clauses)
+           ====================================================================== */
+        const KEYWORD_CLAUSES = {
+          // 1 Star
+          'Poor Service': [
+            'the service felt disorganized and inattentive',
+            'we struggled to get basic attention from the floor team',
+            'service fell well short of basic dining expectations',
+          ],
+          'Unfriendly Staff': [
+            'interactions with the staff came across as cold and curt',
+            'the staff did not seem welcoming at all',
+            'the attitude from the staff made the table feel unwelcome',
+          ],
+          'Long Waiting Time': [
+            'we waited far too long before anything moved forward',
+            'the wait time dragged on much longer than reasonable',
+            'long delays marked almost every part of the evening',
+          ],
+          'Cold Food': [
+            'our dishes reached the table lukewarm and already cooling off',
+            'the food arrived cold instead of freshly served',
+            'plates came out noticeably cold by the time they landed',
+          ],
+          'Poor Food Quality': [
+            'the overall food quality missed the mark',
+            'the dishes lacked care in preparation and taste',
+            'the kitchen quality was far below what we expected',
+          ],
+          'Unclean Restaurant': [
+            'the dining area and tables did not feel properly cleaned',
+            'cleanliness around the restaurant left a lot to be desired',
+            'several spots in the dining room looked neglected and untidy',
+          ],
+          'Overpriced': [
+            'the bill felt steep for what actually showed up',
+            'menu prices were hard to justify given how things went',
+            'it felt noticeably overpriced for the overall outcome',
+          ],
+          'Wrong Order': [
+            'our order came out wrong and had to be sorted out afterward',
+            'there was a mix-up with what we actually ordered',
+            'the kitchen sent the wrong items to our table',
+          ],
+          'Bad Ambience': [
+            'the atmosphere felt uncomfortable and poorly managed',
+            'the setting and noise level made it hard to relax',
+            'the ambience felt off throughout our time there',
+          ],
+          'Disappointing Experience': [
+            'the whole visit left us genuinely disappointed',
+            'overall, it was a frustrating meal from start to finish',
+            'we walked out feeling let down by how the visit went',
+          ],
+
+          // 2 Stars
+          'Slow Service': [
+            'service moved at a noticeably slow pace',
+            'things took quite a while between courses and check-ins',
+            'the pacing of the service dragged the meal down',
+          ],
+          'Food Wasn’t Fresh': [
+            'the food did not taste freshly prepared',
+            'a few items tasted like they had been sitting out for a while',
+            'freshness in the dishes felt lacking',
+          ],
+          'Average Taste': [
+            'the flavors were pretty plain and middle-of-the-road',
+            'the taste felt fairly ordinary without much depth',
+            'nothing on the plate really stood out flavor-wise',
+          ],
+          'Small Portions': [
+            'portion sizes felt smaller than expected for a full meal',
+            'the servings were fairly skimpy for the plates ordered',
+            'portions left us feeling they could have been more generous',
+          ],
+          'High Prices': [
+            'pricing felt on the high side compared to the meal',
+            'the check felt a bit steep for what we got',
+            'menu prices leaned higher than the experience warranted',
+          ],
+          'Delayed Order': [
+            'our order took much longer than anticipated to come out',
+            'there was an avoidable delay getting food to the table',
+            'waiting for the order tested our patience',
+          ],
+          'Staff Could Improve': [
+            'the staff could be more attentive and coordinated',
+            'some extra attentiveness from the team would help a lot',
+            'service manners and follow-through felt a bit uneven',
+          ],
+          'Not Worth the Price': [
+            'the value did not quite match what we paid',
+            'for the price point, it fell short of feeling worthwhile',
+            'it was tough to feel the bill matched the quality',
+          ],
+          'Average Ambience': [
+            'the ambience was passable without feeling memorable',
+            'the dining room felt somewhat plain and unremarkable',
+            'the setting was okay, though nothing particularly inviting',
+          ],
+          'Room for Improvement': [
+            'there is clear room to tighten things up across the board',
+            'a few thoughtful adjustments would make a big difference here',
+            'with better consistency, the visit could be much stronger',
+          ],
+
+          // 3 Stars
+          'Decent Food': [
+            'the food was decent enough to enjoy without surprises',
+            'what we ate was solid and straightforward',
+            'the kitchen turned out respectable, simple dishes',
+          ],
+          'Average Service': [
+            'service was standard—polite enough, though nothing standout',
+            'the staff handled the basics without being overly attentive',
+            'service got the job done at a middle-of-the-road pace',
+          ],
+          'Good Ambience': [
+            'the dining room had a pleasant, comfortable vibe',
+            'the atmosphere was nice enough for a relaxed meal',
+            'the setting felt warm and easygoing',
+          ],
+          'Reasonable Prices': [
+            'prices felt fair for the neighborhood and portion size',
+            'the bill seemed reasonable for what was served',
+            'pricing stayed in a sensible range',
+          ],
+          'Okay Experience': [
+            'overall it was an okay stop for a casual meal',
+            'the visit turned out fine, neither great nor bad',
+            'it made for a passable evening out',
+          ],
+          'Normal Waiting Time': [
+            'the wait time felt normal for how busy it was',
+            'food arrived within a reasonable timeframe',
+            'pacing and waiting times were fairly standard',
+          ],
+          'Satisfactory Food': [
+            'the dishes were satisfactory and filled the spot',
+            'everything tasted acceptable and properly cooked',
+            'the meal met basic expectations well enough',
+          ],
+          'Could Be Better': [
+            'a bit more polish would really elevate the visit',
+            'there are small areas that could easily be sharper',
+            'it felt like the place has potential to do better',
+          ],
+          'Average Portions': [
+            'portion sizes were right around average',
+            'servings were neither skimpy nor overly generous',
+            'plate sizes felt standard for the menu',
+          ],
+          'Nothing Special': [
+            'nothing particularly stood out as memorable afterward',
+            'it was fine in the moment, though fairly forgettable overall',
+            'it did not leave a strong impression either way',
+          ],
+
+          // 4 Stars
+          'Delicious Food': [
+            'the food was genuinely delicious and well seasoned',
+            'every dish we tried had really satisfying flavor',
+            'the kitchen delivered tasty, well-prepared plates',
+          ],
+          'Friendly Staff': [
+            'the staff stayed warm and welcoming throughout the meal',
+            'everyone helping our table had a friendly, easygoing manner',
+            'the team greeted us warmly and made us feel looked after',
+          ],
+          'Good Service': [
+            'service ran smoothly without feeling rushed',
+            'the table was well taken care of from start to finish',
+            'attentive service kept the meal moving comfortably',
+          ],
+          'Nice Ambience': [
+            'the ambience had a warm, inviting character',
+            'the lighting and atmosphere made it easy to settle in',
+            'the space felt relaxed and thoughtfully put together',
+          ],
+          'Fresh Food': [
+            'everything tasted freshly cooked rather than pre-prepped',
+            'the dishes came out fresh and bright',
+            'you could tell the food was prepared fresh to order',
+          ],
+          'Good Presentation': [
+            'each plate arrived neatly presented and appealing',
+            'the plating showed real care without looking overdone',
+            'food presentation added nicely to the table',
+          ],
+          'Worth the Price': [
+            'the quality made the check feel fair and worthwhile',
+            'for what we ordered, the value felt right on point',
+            'prices lined up well with the overall dining quality',
+          ],
+          'Comfortable Seating': [
+            'the seating felt comfortable enough to linger over dinner',
+            'our table setup offered plenty of comfort and room',
+            'we had comfortable seating that made the evening relaxing',
+          ],
+          'Quick Service': [
+            'orders arrived promptly without long gaps',
+            'the kitchen and staff kept things moving briskly',
+            'quick service meant we never felt left waiting',
+          ],
+          'Enjoyable Experience': [
+            'it turned out to be a genuinely enjoyable meal',
+            'we left feeling very happy with how the evening went',
+            'overall, it was a pleasant place to spend dinner',
+          ],
+
+          // 5 Stars
+          'Amazing Food': [
+            'the food was truly standout from the first bite',
+            'every dish we shared tasted vibrant and thoughtfully cooked',
+            'the flavors across the table were hard to beat',
+          ],
+          'Excellent Service': [
+            'service was attentive, calm, and timed just right',
+            'the team took care of every detail without hovering',
+            'from greeting to check, the service felt effortless',
+          ],
+          'Beautiful Ambience': [
+            'the dining room has a warm, understated elegance',
+            'the lighting and setting created a lovely atmosphere',
+            'the space feels cozy yet refined as soon as you walk in',
+          ],
+          'Delicious Desserts': [
+            'saving room for dessert was worth it—every sweet bite hit the spot',
+            'the desserts rounded off the meal beautifully',
+            'dessert ended the evening on a high note',
+          ],
+          'Great Hospitality': [
+            'the hospitality made us feel genuinely cared for as guests',
+            'warm hospitality gave the whole visit a personal touch',
+            'the crew treated our table with genuine warmth',
+          ],
+          'Fresh Ingredients': [
+            'fresh, quality ingredients came through clearly in every dish',
+            'you can taste the freshness of the ingredients right away',
+            'nothing felt heavy or processed—just clean, fresh flavors',
+          ],
+          'Perfect Presentation': [
+            'every plate looked crisp, balanced, and carefully finished',
+            'presentation was spot-on without feeling fussy',
+            'the dishes looked as appealing as they tasted',
+          ],
+          'Great Value for Money': [
+            'considering the quality, the pricing felt like great value',
+            'the bill felt completely fair for the caliber of the meal',
+            'you get strong value for money here',
+          ],
+          'Loved Everything': [
+            'there really wasn’t a single weak note all evening',
+            'we genuinely loved every part of the meal',
+            'everything came together smoothly from start to finish',
+          ],
+          'Memorable Experience': [
+            'it is the kind of dinner you still talk about the next day',
+            'the evening left a lasting, happy impression on all of us',
+            'it made for a genuinely memorable night out at APPETITO',
+          ],
+        };
+
+        /* ======================================================================
+           VOICE & STRUCTURAL ARCHETYPES (No robotic repetition)
+           ====================================================================== */
+        const OPENINGS = {
+          1: [
+            'Wanted to share honest feedback after eating at APPETITO.',
+            'Stopped by APPETITO hoping for a good meal, though it did not go well.',
+            'Our recent meal at APPETITO was tough to overlook.',
+            'Visited APPETITO earlier and left feeling pretty let down.',
+            'Sharing a candid note about our visit to APPETITO.',
+            'Dinner at APPETITO fell short of basic expectations this time.',
+          ],
+          2: [
+            'Dined at APPETITO recently and came away with mixed feelings.',
+            'Tried APPETITO for a meal, though a few things held it back.',
+            'Wanted to leave constructive feedback after eating at APPETITO.',
+            'Our visit to APPETITO had potential, even if it missed the mark.',
+            'Stopped into APPETITO and felt the visit fell a bit flat.',
+            'Ate at APPETITO and left thinking things could be sharper.',
+          ],
+          3: [
+            'Dropped by APPETITO for a meal and had a fairly middle-of-the-road visit.',
+            'Ate at APPETITO and found the experience decent overall.',
+            'Our recent stop at APPETITO was fine, with both pros and cons.',
+            'Visited APPETITO for dinner and left with a balanced impression.',
+            'Tried APPETITO out and had an okay time overall.',
+            'Stopped into APPETITO and felt things landed right around average.',
+          ],
+          4: [
+            'Had dinner at APPETITO and really liked how everything came together.',
+            'Stopped by APPETITO recently and walked away pleased.',
+            'Dined at APPETITO and found plenty to appreciate.',
+            'Our meal at APPETITO made for a really pleasant evening.',
+            'Visited APPETITO and came away very happy with the table experience.',
+            'Tried APPETITO for dinner and thoroughly enjoyed our time there.',
+          ],
+          5: [
+            'Dined at APPETITO and left smiling from start to finish.',
+            'Our evening at APPETITO hit every right note.',
+            'Stopped by APPETITO and was genuinely impressed by the whole meal.',
+            'Dinner at APPETITO was a real highlight of the week.',
+            'Visited APPETITO recently and felt everything clicked effortlessly.',
+            'Spent an evening at APPETITO and couldn’t have asked for a better table.',
+          ],
+        };
+
+        const CONNECTORS = [
+          'On top of that,',
+          'Meanwhile,',
+          'To add to that,',
+          'At the same time,',
+          'What also stood out was that',
+          'Along with that,',
+          'As for the rest of the visit,',
+          'Noticeably,',
+        ];
+
+        const CLOSINGS = {
+          1: [
+            'Hopefully the team takes this seriously and fixes these basics soon.',
+            'Sharing this honestly in hopes management addresses what went wrong.',
+            'A lot needs attention before I would consider coming back.',
+            'I hope future guests see much better care and consistency.',
+            'Leaving this feedback so the restaurant can look into these gaps.',
+          ],
+          2: [
+            'With tighter execution in the kitchen and on the floor, it could improve.',
+            'Hopefully a few practical tweaks help bring things up to standard.',
+            'Not awful, just several clear areas that need steadier attention.',
+            'I hope the team uses this feedback to smooth out the rough edges.',
+            'There is room to grow here if the details get more focus.',
+          ],
+          3: [
+            'A decent neighborhood option if you are nearby, though nothing unforgettable.',
+            'Fine for a casual bite, even if a bit more polish would help.',
+            'All in all, a steady middle-ground visit with room to grow.',
+            'Solid enough for an ordinary night out without major complaints.',
+            'Good enough to stop by again sometime, though I wouldn’t rush back.',
+          ],
+          4: [
+            'Definitely a comfortable spot I would gladly visit again.',
+            'Overall, a strong dining experience that felt well worth the trip.',
+            'Glad we picked APPETITO for dinner and look forward to another visit.',
+            'A very solid evening out—happy to stop by again soon.',
+            'Everything felt thoughtfully handled, making it easy to return.',
+          ],
+          5: [
+            'Already looking forward to bringing friends back to APPETITO soon.',
+            'Grateful to the team for making dinner feel so effortless and warm.',
+            'It easily earned a spot on my go-to list for a great night out.',
+            'Everything came together naturally—will gladly return for another meal.',
+            'Thank you to everyone at APPETITO for a truly wonderful evening.',
+          ],
+        };
+
+        const PADDING_LINES = {
+          1: 'It is frustrating when simple hospitality details slip during a sit-down meal.',
+          2: 'A little more consistency would go a long way toward a better visit.',
+          3: 'Overall, the evening felt steady enough without standing out much.',
+          4: 'It was easy to relax and enjoy the evening without any fuss.',
+          5: 'Everything felt genuine and well cared for throughout our stay.',
+        };
+
+        /* ======================================================================
+           DOM REFERENCES & STATE
+           ====================================================================== */
+        const bgPhoto = document.getElementById('bgPhoto');
+        const starButtons = Array.from(document.querySelectorAll('.star-btn'));
+        const ratingLabelDisplay = document.getElementById('ratingLabelDisplay');
+        const keywordsSection = document.getElementById('keywordsSection');
+        const keywordsPrompt = document.getElementById('keywordsPrompt');
+        const keywordsCount = document.getElementById('keywordsCount');
+        const keywordsGrid = document.getElementById('keywordsGrid');
+        const generateBtn = document.getElementById('generateBtn');
+        const generateBtnText = document.getElementById('generateBtnText');
+        const reviewTextarea = document.getElementById('reviewTextarea');
+        const wordCounter = document.getElementById('wordCounter');
+        const statusBanner = document.getElementById('statusBanner');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyBtnText = document.getElementById('copyBtnText');
+        const googleBtn = document.getElementById('googleBtn');
+        const googleInstruction = document.getElementById('googleInstruction');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const state = {
+          rating: 0,
+          selectedKeywords: [],
+          isGenerating: false,
+          copyTimer: null,
+        };
+
+        /* ======================================================================
+           BACKGROUND IMAGE RELIABILITY FALLBACK
+           ====================================================================== */
+        if (bgPhoto) {
+          bgPhoto.addEventListener('error', () => {
+            if (FALLBACK_BACKDROP_SVG) {
+              bgPhoto.src = FALLBACK_BACKDROP_SVG;
+            } else {
+              bgPhoto.classList.add('is-hidden');
+            }
+          });
+        }
+
+        /* ======================================================================
+           UTILITY HELPERS
+           ====================================================================== */
+        function pickRandom(list) {
+          return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function shuffleArray(arr) {
+          const copy = arr.slice();
+          for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+          }
+          return copy;
+        }
+
+        function capitalizeFirst(str) {
+          if (!str) return '';
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function countWords(text) {
+          const trimmed = text.trim();
+          if (!trimmed) return 0;
+          return trimmed.split(/\s+/).length;
+        }
+
+        function updateWordCounter() {
+          const words = countWords(reviewTextarea.value);
+          wordCounter.textContent = words === 1 ? '1 word' : `${words} words`;
+        }
+
+        function showStatus(message, type) {
+          statusBanner.textContent = message;
+          statusBanner.className = `status-banner is-visible is-${type}`;
+        }
+
+        function clearStatus() {
+          statusBanner.textContent = '';
+          statusBanner.className = 'status-banner';
+        }
+
+        /* ======================================================================
+           LOCALSTORAGE HISTORY & SIMILARITY CHECKER
+           ====================================================================== */
+        function loadReviewHistory() {
+          try {
+            const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed)
+              ? parsed.filter((item) => typeof item === 'string' && item.trim().length > 0)
+              : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function saveReviewToHistory(text) {
+          const clean = text.trim();
+          if (!clean) return;
+          try {
+            const history = loadReviewHistory();
+            const normalizedNew = normalizeForCompare(clean);
+            const deduped = history.filter((item) => normalizeForCompare(item) !== normalizedNew);
+            deduped.unshift(clean);
+            if (deduped.length > MAX_HISTORY_RECORDS) {
+              deduped.length = MAX_HISTORY_RECORDS;
+            }
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(deduped));
+          } catch {
+            // Gracefully ignore storage quota / private mode restrictions
+          }
+        }
+
+        function normalizeForCompare(text) {
+          return text
+            .toLowerCase()
+            .replace(/[^\w\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+
+        const STOP_WORDS = new Set([
+          'a', 'an', 'the', 'and', 'or', 'but', 'for', 'to', 'of', 'in', 'on', 'at', 'with',
+          'was', 'were', 'is', 'are', 'it', 'its', 'that', 'this', 'we', 'our', 'i', 'my',
+          'by', 'as', 'very', 'really', 'so', 'just', 'from', 'there', 'here', 'appetito',
+        ]);
+
+        function getContentTokens(text) {
+          return normalizeForCompare(text)
+            .split(' ')
+            .filter((word) => word.length > 2 && !STOP_WORDS.has(word));
+        }
+
+        function getWordBigrams(tokens) {
+          const set = new Set();
+          for (let i = 0; i < tokens.length - 1; i++) {
+            set.add(`${tokens[i]}_${tokens[i + 1]}`);
+          }
+          return set;
+        }
+
+        function jaccardSimilarity(setA, setB) {
+          if (setA.size === 0 || setB.size === 0) return 0;
+          let intersection = 0;
+          setA.forEach((val) => {
+            if (setB.has(val)) intersection += 1;
+          });
+          const union = setA.size + setB.size - intersection;
+          return union === 0 ? 0 : intersection / union;
+        }
+
+        function diceSimilarity(setA, setB) {
+          if (setA.size === 0 || setB.size === 0) return 0;
+          let intersection = 0;
+          setA.forEach((val) => {
+            if (setB.has(val)) intersection += 1;
+          });
+          return (2 * intersection) / (setA.size + setB.size);
+        }
+
+        function computeMaxSimilarity(candidate, history) {
+          const normCandidate = normalizeForCompare(candidate);
+          const candWords = normCandidate.split(' ');
+          const candOpening = candWords.slice(0, 4).join(' ');
+          const candClosing = candWords.slice(-4).join(' ');
+          const candTokens = new Set(getContentTokens(candidate));
+          const candBigrams = getWordBigrams(candWords);
+
+          let highestScore = 0;
+
+          for (let i = 0; i < history.length; i++) {
+            const prev = history[i];
+            const normPrev = normalizeForCompare(prev);
+            if (!normPrev) continue;
+
+            if (normCandidate === normPrev) {
+              return 1;
+            }
+
+            const prevWords = normPrev.split(' ');
+            const prevOpening = prevWords.slice(0, 4).join(' ');
+            const prevClosing = prevWords.slice(-4).join(' ');
+
+            // Strongly penalize identical opening or closing 4-word sequences in recent reviews
+            if (i < 15 && (candOpening === prevOpening || candClosing === prevClosing)) {
+              highestScore = Math.max(highestScore, 0.85);
+              continue;
+            }
+
+            const prevTokens = new Set(getContentTokens(prev));
+            const prevBigrams = getWordBigrams(prevWords);
+
+            const tokenSim = jaccardSimilarity(candTokens, prevTokens);
+            const bigramSim = diceSimilarity(candBigrams, prevBigrams);
+            const combined = Math.max(tokenSim, bigramSim * 1.15);
+
+            if (combined > highestScore) {
+              highestScore = combined;
+            }
+          }
+
+          return highestScore;
+        }
+
+        function isTooSimilar(candidate, history) {
+          return computeMaxSimilarity(candidate, history) >= 0.56;
+        }
+
+        /* ======================================================================
+           CLIENT-SIDE MULTI-ARCHETYPE REVIEW GENERATOR (30–70 words)
+           ====================================================================== */
+        function joinClausesNaturally(clauses) {
+          if (clauses.length === 0) return '';
+          if (clauses.length === 1) return clauses[0];
+          if (clauses.length === 2) {
+            const joiner = Math.random() > 0.5 ? ', and ' : '; ';
+            return `${clauses[0]}${joiner}${clauses[1]}`;
+          }
+          const last = clauses[clauses.length - 1];
+          const init = clauses.slice(0, -1).join(', ');
+          return `${init}, and ${last}`;
+        }
+
+        function buildDraftFromArchetype(rating, selectedKeywords) {
+          const ordered = shuffleArray(selectedKeywords);
+          // Use up to 5 selected keywords cleanly so the review stays natural and 30-70 words
+          const chosenKeywords = ordered.slice(0, Math.min(ordered.length, 5));
+          const clauses = chosenKeywords.map((kw) => {
+            const variants = KEYWORD_CLAUSES[kw] || [kw.toLowerCase()];
+            return pickRandom(variants);
+          });
+
+          const opening = pickRandom(OPENINGS[rating]);
+          const closing = pickRandom(CLOSINGS[rating]);
+          const connector = pickRandom(CONNECTORS);
+
+          // Split clauses into 1 or 2 body sentences depending on count & random archetype
+          const archetype = Math.floor(Math.random() * 5);
+          let sentences = [];
+
+          if (clauses.length === 1) {
+            if (archetype % 2 === 0) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(clauses[0])}.`,
+                closing,
+              ];
+            } else {
+              sentences = [
+                `${capitalizeFirst(clauses[0])} when we ate at APPETITO.`,
+                closing,
+              ];
+            }
+          } else if (clauses.length === 2) {
+            if (archetype === 0) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(clauses[0])}, and ${clauses[1]}.`,
+                closing,
+              ];
+            } else if (archetype === 1) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(clauses[0])}. ${connector} ${clauses[1]}.`,
+                closing,
+              ];
+            } else if (archetype === 2) {
+              sentences = [
+                `${capitalizeFirst(clauses[0])} during our meal at APPETITO.`,
+                `${connector} ${clauses[1]}.`,
+                closing,
+              ];
+            } else {
+              sentences = [
+                opening,
+                `${capitalizeFirst(clauses[0])}; ${clauses[1]}.`,
+                closing,
+              ];
+            }
+          } else {
+            const splitIdx = Math.ceil(clauses.length / 2);
+            const firstHalf = joinClausesNaturally(clauses.slice(0, splitIdx));
+            const secondHalf = joinClausesNaturally(clauses.slice(splitIdx));
+
+            if (archetype === 0) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(firstHalf)}.`,
+                `${connector} ${secondHalf}.`,
+                closing,
+              ];
+            } else if (archetype === 1) {
+              sentences = [
+                `${capitalizeFirst(firstHalf)} at APPETITO.`,
+                `${connector} ${secondHalf}.`,
+                closing,
+              ];
+            } else if (archetype === 2) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(joinClausesNaturally(clauses))}.`,
+                closing,
+              ];
+            } else if (archetype === 3) {
+              sentences = [
+                opening,
+                `${capitalizeFirst(clauses[0])}.`,
+                `${capitalizeFirst(joinClausesNaturally(clauses.slice(1)))}.`,
+                closing,
+              ];
+            } else {
+              sentences = [
+                `${capitalizeFirst(clauses[0])}, and ${clauses[1]} when we visited APPETITO.`,
+                `${connector} ${joinClausesNaturally(clauses.slice(2))}.`,
+                closing,
+              ];
+            }
+          }
+
+          let draft = sentences.join(' ').replace(/\s+/g, ' ').trim();
+
+          // Enforce 30–70 word target naturally
+          let words = countWords(draft);
+          if (words < 30) {
+            draft = `${draft} ${PADDING_LINES[rating]}`;
+            words = countWords(draft);
+          }
+
+          if (words > 70) {
+            // Trim gracefully by dropping the middle connector sentence or condensing
+            const parts = draft.match(/[^.!?]+[.!?]+/g) || [draft];
+            while (parts.length > 2 && countWords(parts.join(' ')) > 70) {
+              parts.splice(parts.length - 2, 1);
+            }
+            draft = parts.join(' ').replace(/\s+/g, ' ').trim();
+          }
+
+          return draft;
+        }
+
+        function generateLocalUniqueReview(rating, selectedKeywords, history) {
+          let bestCandidate = '';
+          let lowestSim = Infinity;
+
+          for (let attempt = 0; attempt < MAX_LOCAL_ATTEMPTS; attempt++) {
+            const candidate = buildDraftFromArchetype(rating, selectedKeywords);
+            const sim = computeMaxSimilarity(candidate, history);
+
+            if (sim < 0.56) {
+              return candidate;
+            }
+
+            if (sim < lowestSim) {
+              lowestSim = sim;
+              bestCandidate = candidate;
+            }
+          }
+
+          return bestCandidate || buildDraftFromArchetype(rating, selectedKeywords);
+        }
+
+        /* ======================================================================
+           SERVER-SIDE AI CALL (if /api/generate-review is running & configured)
+           Falls back gracefully to local generator on static hosts (GitHub Pages)
+           ====================================================================== */
+        async function tryServerAIGeneration(rating, keywords, history) {
+          if (window.location.protocol === 'file:') {
+            return null;
+          }
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+          const styleHints = [
+            'concise and direct diner',
+            'warm conversational neighborhood regular',
+            'thoughtful guest sharing practical observations',
+            'short casual first-person reflection',
+          ];
+
+          try {
+            const response = await fetch('/api/generate-review', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                rating,
+                ratingLabel: RATING_DATA[rating].title,
+                keywords,
+                recentReviews: history.slice(0, 6),
+                styleHint: pickRandom(styleHints),
+              }),
+            });
+
+            if (!response.ok) {
+              return null;
+            }
+
+            const data = await response.json();
+            if (data && typeof data.review === 'string' && data.review.trim().length > 0) {
+              return data.review.trim();
+            }
+            return null;
+          } catch {
+            return null;
+          } finally {
+            clearTimeout(timeoutId);
+          }
+        }
+
+        /* ======================================================================
+           STAR RATING & KEYWORD UI HANDLERS
+           ====================================================================== */
+        function paintStars(activeCount, previewCount) {
+          starButtons.forEach((btn) => {
+            const value = Number(btn.dataset.rating);
+            btn.classList.toggle('is-selected', value <= activeCount);
+            btn.classList.toggle('is-preview', previewCount > 0 && value <= previewCount);
+            btn.setAttribute('aria-checked', String(value === activeCount));
+          });
+        }
+
+        function updateKeywordsCount() {
+          const count = state.selectedKeywords.length;
+          keywordsCount.textContent = count === 1 ? '1 selected' : `${count} selected`;
+        }
+
+        function renderKeywordsForRating(rating) {
+          const config = RATING_DATA[rating];
+          if (!config) {
+            keywordsSection.hidden = true;
+            keywordsGrid.innerHTML = '';
+            return;
+          }
+
+          keywordsPrompt.textContent = config.prompt;
+          keywordsGrid.innerHTML = '';
+
+          config.keywords.forEach((keyword) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'keyword-btn';
+            btn.setAttribute('aria-pressed', 'false');
+
+            const checkSpan = document.createElement('span');
+            checkSpan.className = 'keyword-check';
+            checkSpan.setAttribute('aria-hidden', 'true');
+            checkSpan.textContent = '✓';
+
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = keyword;
+
+            btn.appendChild(checkSpan);
+            btn.appendChild(labelSpan);
+
+            btn.addEventListener('click', () => {
+              const index = state.selectedKeywords.indexOf(keyword);
+              if (index === -1) {
+                state.selectedKeywords.push(keyword);
+                btn.classList.add('is-active');
+                btn.setAttribute('aria-pressed', 'true');
+              } else {
+                state.selectedKeywords.splice(index, 1);
+                btn.classList.remove('is-active');
+                btn.setAttribute('aria-pressed', 'false');
+              }
+              updateKeywordsCount();
+              clearStatus();
+            });
+
+            keywordsGrid.appendChild(btn);
+          });
+
+          keywordsSection.hidden = false;
+          updateKeywordsCount();
+        }
+
+        function selectRating(rating) {
+          if (state.rating !== rating) {
+            state.rating = rating;
+            // Clear previously selected keywords whenever switching to a different star rating
+            state.selectedKeywords = [];
+            renderKeywordsForRating(rating);
+          }
+
+          paintStars(rating, 0);
+          ratingLabelDisplay.textContent = RATING_DATA[rating].title;
+          ratingLabelDisplay.classList.remove('is-empty');
+          clearStatus();
+        }
+
+        starButtons.forEach((btn) => {
+          const value = Number(btn.dataset.rating);
+
+          btn.addEventListener('click', () => {
+            selectRating(value);
+          });
+
+          btn.addEventListener('mouseenter', () => {
+            paintStars(state.rating, value);
+          });
+
+          btn.addEventListener('mouseleave', () => {
+            paintStars(state.rating, 0);
+          });
+
+          btn.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              const next = Math.min(5, value + 1);
+              selectRating(next);
+              starButtons[next - 1].focus();
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+              event.preventDefault();
+              const prev = Math.max(1, value - 1);
+              selectRating(prev);
+              starButtons[prev - 1].focus();
+            }
+          });
+        });
+
+        /* ======================================================================
+           GENERATE MY REVIEW HANDLER
+           ====================================================================== */
+        function setGeneratingState(loading) {
+          state.isGenerating = loading;
+          generateBtn.disabled = loading;
+          generateBtn.classList.toggle('is-loading', loading);
+          generateBtnText.textContent = loading ? 'Crafting Your Review…' : '✨ Generate My Review';
+        }
+
+        generateBtn.addEventListener('click', async () => {
+          if (state.isGenerating) return;
+
+          if (!state.rating) {
+            showStatus('Please select a star rating from 1 to 5 before generating a review.', 'warn');
+            starButtons[0].focus();
+            return;
+          }
+
+          if (state.selectedKeywords.length === 0) {
+            showStatus('Please pick at least one keyword above so your review reflects your actual experience.', 'warn');
+            const firstKeyword = keywordsGrid.querySelector('.keyword-btn');
+            if (firstKeyword) firstKeyword.focus();
+            return;
+          }
+
+          clearStatus();
+          setGeneratingState(true);
+
+          try {
+            const history = loadReviewHistory();
+            let generated = null;
+
+            // Try secure backend AI endpoint first if available (up to 2 tries if duplicate)
+            for (let aiTry = 0; aiTry < 2; aiTry++) {
+              const aiCandidate = await tryServerAIGeneration(
+                state.rating,
+                state.selectedKeywords,
+                history
+              );
+              if (!aiCandidate) break;
+              if (!isTooSimilar(aiCandidate, history)) {
+                generated = aiCandidate;
+                break;
+              }
+            }
+
+            // Fallback to extensive client-side multi-archetype variation engine
+            if (!generated) {
+              // Slight natural pause so loading feedback feels responsive
+              await new Promise((resolve) => setTimeout(resolve, 220));
+              generated = generateLocalUniqueReview(
+                state.rating,
+                state.selectedKeywords,
+                history
+              );
+            }
+
+            reviewTextarea.value = generated;
+            updateWordCounter();
+            saveReviewToHistory(generated);
+            googleInstruction.classList.remove('is-highlighted');
+          } catch {
+            showStatus('Something went wrong while drafting your review. Please try again.', 'error');
+          } finally {
+            setGeneratingState(false);
+          }
+        });
+
+        /* ======================================================================
+           EDITABLE REVIEW BOX LIVE WORD COUNT
+           ====================================================================== */
+        reviewTextarea.addEventListener('input', () => {
+          updateWordCounter();
+          if (statusBanner.classList.contains('is-visible')) {
+            clearStatus();
+          }
+        });
+
+        /* ======================================================================
+           COPY REVIEW BUTTON (Clipboard API + Reliable Mobile/Legacy Fallback)
+           ====================================================================== */
+        async function copyTextToClipboard(text) {
+          if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch {
+              // Fall through to execCommand fallback
+            }
+          }
+
+          // Fallback for older browsers or restricted contexts
+          const tempArea = document.createElement('textarea');
+          tempArea.value = text;
+          tempArea.setAttribute('readonly', '');
+          tempArea.style.position = 'fixed';
+          tempArea.style.top = '-9999px';
+          tempArea.style.left = '-9999px';
+          document.body.appendChild(tempArea);
+
+          const selection = document.getSelection();
+          const savedRange =
+            selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+          tempArea.focus();
+          tempArea.select();
+          tempArea.setSelectionRange(0, tempArea.value.length);
+
+          let copied = false;
+          try {
+            copied = document.execCommand('copy');
+          } catch {
+            copied = false;
+          }
+
+          document.body.removeChild(tempArea);
+          if (savedRange && selection) {
+            selection.removeAllRanges();
+            selection.addRange(savedRange);
+          }
+
+          return copied;
+        }
+
+        copyBtn.addEventListener('click', async () => {
+          const text = reviewTextarea.value.trim();
+          if (!text) {
+            showStatus('There is no review to copy yet. Generate or write your review first.', 'warn');
+            reviewTextarea.focus();
+            return;
+          }
+
+          const success = await copyTextToClipboard(text);
+          if (!success) {
+            showStatus('Unable to copy automatically. Please select the text in the box and copy it manually.', 'error');
+            return;
+          }
+
+          showStatus('Review copied successfully!', 'success');
+          googleInstruction.classList.add('is-highlighted');
+          copyBtnText.textContent = 'Copied!';
+
+          if (state.copyTimer) {
+            clearTimeout(state.copyTimer);
+          }
+          state.copyTimer = setTimeout(() => {
+            copyBtnText.textContent = '📋 Copy Review';
+          }, 2200);
+        });
+
+        /* ======================================================================
+           POST ON GOOGLE BUTTON (Configurable GOOGLE_REVIEW_URL)
+           ====================================================================== */
+        function isValidConfiguredUrl(url) {
+          if (typeof url !== 'string') return false;
+          const trimmed = url.trim();
+          if (!trimmed) return false;
+          try {
+            const parsed = new URL(trimmed);
+            return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+          } catch {
+            return false;
+          }
+        }
+
+        if (isValidConfiguredUrl(GOOGLE_REVIEW_URL)) {
+          googleBtn.setAttribute('href', GOOGLE_REVIEW_URL.trim());
+        }
+
+        googleBtn.addEventListener('click', (event) => {
+          if (!isValidConfiguredUrl(GOOGLE_REVIEW_URL)) {
+            event.preventDefault();
+            showStatus(
+              'Google Review link is not configured yet. Open index.html and set GOOGLE_REVIEW_URL to your restaurant’s official Google Review URL.',
+              'warn'
+            );
+            return;
+          }
+
+          // Copy any drafted review without blocking immediate new-tab navigation
+          const currentReview = reviewTextarea.value.trim();
+          if (currentReview) {
+            copyTextToClipboard(currentReview).then((copied) => {
+              if (copied) {
+                googleInstruction.classList.add('is-highlighted');
+              }
+            });
+          }
+        });
+
+        /* ======================================================================
+           START AGAIN (RESET) — Preserves global duplicate-review history
+           ====================================================================== */
+        resetBtn.addEventListener('click', () => {
+          state.rating = 0;
+          state.selectedKeywords = [];
+
+          paintStars(0, 0);
+          ratingLabelDisplay.textContent = 'Tap a star to select your rating';
+          ratingLabelDisplay.classList.add('is-empty');
+
+          keywordsSection.hidden = true;
+          keywordsGrid.innerHTML = '';
+          updateKeywordsCount();
+
+          reviewTextarea.value = '';
+          updateWordCounter();
+
+          clearStatus();
+          copyBtnText.textContent = '📋 Copy Review';
+          googleInstruction.classList.remove('is-highlighted');
+
+          if (state.copyTimer) {
+            clearTimeout(state.copyTimer);
+            state.copyTimer = null;
+          }
+        });
+
+        // Initial render setup
+        updateWordCounter();
+      })();
+    </script>
+  </body>
+</html>
